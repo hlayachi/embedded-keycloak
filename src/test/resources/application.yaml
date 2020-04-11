@@ -1,0 +1,23 @@
+server:
+  port: 8083
+
+spring:
+  datasource:
+    username: sa
+    url: jdbc:h2:mem:testdb
+
+keycloak:
+  server:
+    contextPath: /auth
+    admin-user:
+      username: admin
+      password: admin
+    realmImportFile: keycloak-realm.json
+
+keycloak-props:
+    realm: bankApp
+    master-realm: master
+    auth-server-url: http://127.0.0.1:8083/auth
+    resource: admin-cli
+    username: admin
+    password: admin
