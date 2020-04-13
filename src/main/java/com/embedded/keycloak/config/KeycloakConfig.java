@@ -19,7 +19,7 @@ public class KeycloakConfig {
     private String password;
 
     @Bean
-    public Keycloak keycloakFactory(){
+    public Keycloak keycloakFactory() {
         return KeycloakBuilder.builder()
                 .serverUrl(authServerUrl)
                 .realm(masterRealm)
@@ -31,7 +31,7 @@ public class KeycloakConfig {
     }
 
     @Bean
-    public RealmResource etradeResource(Keycloak keycloak){
+    public RealmResource etradeResource(Keycloak keycloak) {
         return keycloak.realm(realm);
     }
 

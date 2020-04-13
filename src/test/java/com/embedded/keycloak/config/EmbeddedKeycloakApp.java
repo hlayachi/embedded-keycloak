@@ -1,5 +1,9 @@
 package com.embedded.keycloak.config;
 
+import org.jboss.resteasy.core.Dispatcher;
+import org.jboss.resteasy.core.SynchronousDispatcher;
+import org.jboss.resteasy.mock.MockDispatcherFactory;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.representations.idm.RealmRepresentation;
 import org.keycloak.services.managers.ApplianceBootstrap;
@@ -9,29 +13,37 @@ import org.keycloak.util.JsonSerialization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.Context;
 
 @EnableConfigurationProperties(KeycloakServerProperties.class)
+@Component
 public class EmbeddedKeycloakApp extends KeycloakApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(EmbeddedKeycloakApp.class);
 
     static KeycloakServerProperties keycloakServerProperties;
 
-    public EmbeddedKeycloakApp() {
 
-        super();
+    public EmbeddedKeycloakApp(@Context ServletContext context, @Context DispatcherServlet dispatcherServlet) {
+
+        super(context, new SynchronousDispatcher(new ResteasyProviderFactory()));
 
         createMasterRealmAdminUser();
 
         createBaeldungRealm();
     }
 
-    private void createMasterRealmAdminUser() {
+    static private Dispatcher createDispatcher() {
+        return MockDispatcherFactory.createDispatcher();
+    }
 
+    private void createMasterRealmAdminUser() {
         KeycloakSession session = getSessionFactory().create();
 
         ApplianceBootstrap applianceBootstrap = new ApplianceBootstrap(session);

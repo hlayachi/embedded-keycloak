@@ -1,11 +1,10 @@
 package com.embedded.keycloak.config;
 
+import liquibase.integration.spring.SpringLiquibase;
 import org.jboss.resteasy.plugins.server.servlet.HttpServlet30Dispatcher;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.keycloak.services.filters.KeycloakSessionServletFilter;
 import org.keycloak.services.listeners.KeycloakSessionDestroyListener;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
@@ -17,17 +16,23 @@ import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 
 @TestConfiguration
-@EnableAutoConfiguration(exclude = LiquibaseAutoConfiguration.class)
 public class EmbeddedKeycloakConfig {
 
     @Bean
-    ServletRegistrationBean<HttpServlet30Dispatcher> keycloakJaxRsApplication(
+    public SpringLiquibase liquibase() {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setShouldRun(false);
+        return liquibase;
+    }
+
+    @Bean
+    ServletRegistrationBean keycloakJaxRsApplication(
             KeycloakServerProperties keycloakServerProperties, DataSource dataSource) throws Exception {
 
         mockJndiEnvironment(dataSource);
         EmbeddedKeycloakApp.keycloakServerProperties = keycloakServerProperties;
 
-        ServletRegistrationBean<HttpServlet30Dispatcher> servlet = new ServletRegistrationBean<>(
+        ServletRegistrationBean servlet = new ServletRegistrationBean(
                 new HttpServlet30Dispatcher());
         servlet.addInitParameter("javax.ws.rs.Application", EmbeddedKeycloakApp.class.getName());
         servlet.addInitParameter(ResteasyContextParameters.RESTEASY_SERVLET_MAPPING_PREFIX,
@@ -46,10 +51,10 @@ public class EmbeddedKeycloakConfig {
     }
 
     @Bean
-    FilterRegistrationBean<KeycloakSessionServletFilter> keycloakSessionManagement(
+    FilterRegistrationBean keycloakSessionManagement(
             KeycloakServerProperties keycloakServerProperties) {
 
-        FilterRegistrationBean<KeycloakSessionServletFilter> filter = new FilterRegistrationBean<>();
+        FilterRegistrationBean filter = new FilterRegistrationBean();
         filter.setName("Keycloak Session Management");
         filter.setFilter(new KeycloakSessionServletFilter());
         filter.addUrlPatterns(keycloakServerProperties.getContextPath() + "/*");

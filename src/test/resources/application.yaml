@@ -21,3 +21,5 @@ keycloak-props:
     resource: admin-cli
     username: admin
     password: admin
+
+
